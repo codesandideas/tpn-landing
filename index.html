@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Pineapple Nation</title>
-<meta name="description" content="The Pineapple Nation is a creative agency collective. Social media, brand identity, websites, graphic design, photography and videography that make business sense.">
+<meta name="description" content="The Pineapple Nation is a creative agency collective. Social media, graphic design, brand identity, websites, performance marketing, photography and videography.">
 <link rel="icon" href="assets/submark-black.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,7 +69,7 @@
   /* scroll reveals */
   .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
   .reveal.in{opacity:1;transform:none}
-  .service.reveal,.work-links li.reveal{transform:translateY(18px)}
+  .service.reveal{transform:translateY(18px)}
   @media (prefers-reduced-motion:reduce){
     .hero-mark img,.hero-copy>*{animation:none;opacity:1;transform:none}
     .reveal{opacity:1;transform:none;transition:none}
@@ -88,19 +88,10 @@
 
   /* ---------- services ---------- */
   .services{background:var(--stone)}
-  .service{border-top:1px solid var(--mist);padding:1.6rem 0 1.8rem;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:1.5rem}
-  .service:first-of-type{border-top:0;padding-top:0}
-  .service h3{font-size:1.35rem;font-weight:600}
-  .service h3 small{display:block;font-weight:300;font-size:1.05rem;margin-top:.5rem;line-height:1.35;letter-spacing:.01em}
-  .service p{color:var(--slate);max-width:var(--measure)}
-
-  /* ---------- work ---------- */
-  .work-links{list-style:none;border-top:var(--rule) solid var(--ink)}
-  .work-links li{border-bottom:1px solid var(--mist)}
-  .work-links a{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:1.5rem;padding:1.4rem 0;align-items:baseline;transition:padding-left .3s}
-  .work-links a:hover{padding-left:.6rem}
-  .work-links b{font-family:var(--display);font-weight:600;font-size:1.25rem}
-  .work-links span{color:var(--slate)}
+  .service-list{list-style:none;border-top:var(--rule) solid var(--ink)}
+  .service{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:1.5rem;align-items:baseline;padding:1.5rem 0;border-bottom:1px solid var(--mist)}
+  .service h3{font-size:clamp(1.25rem,1.9vw,1.6rem);font-weight:400}
+  .service p{color:var(--slate)}
 
   /* ---------- contact ---------- */
   .contact{background:var(--ink);color:var(--paper)}
@@ -121,7 +112,7 @@
     .hero .wrap{min-height:0}
     .section .wrap,.contact .wrap{grid-template-columns:1fr}
     .section h2{position:static}
-    .service,.work-links a{grid-template-columns:1fr;gap:.6rem}
+    .service{grid-template-columns:1fr;gap:.35rem}
   }
   @media (max-width:640px){
     .nav ul{display:none}
@@ -142,7 +133,6 @@
     <ul id="menu">
       <li><a href="#about">Who we are</a></li>
       <li><a href="#services">Services</a></li>
-      <li><a href="#work">Work</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
   </div>
@@ -154,9 +144,9 @@
       <div class="hero-mark"><img src="assets/submark-black.png" alt="" width="1199" height="1323"></div>
       <div class="hero-copy">
         <h1>From a <span class="nb">125-year-old</span> legacy brand to a <span class="nb">6-month-old</span> passion project — <em>we’ve done it all.</em></h1>
-        <p>Creative, measurable, out-of-the-box design that works.</p>
+        <p>Design that moves ideas forward.</p>
         <div class="actions">
-          <a class="btn fill" href="mailto:sanaa@thepineapplenation.com">Start a project</a>
+          <a class="btn fill" href="mailto:sanaa@thepineapplenation.com">Get in touch</a>
           <a class="btn line" href="https://www.behance.net/sanaahunt/projects" target="_blank" rel="noopener">See our work</a>
         </div>
       </div>
@@ -177,43 +167,14 @@
   <section class="section services" id="services">
     <div class="wrap">
       <h2 class="reveal">Core services</h2>
-      <div>
-        <article class="service reveal">
-          <h3>Social media <small>Scroll-stopping content with campaigns that click.</small></h3>
-          <p>Monthly content calendars, designed stories, festival creatives, captions, hashtags and full account handling. We engage, post, reply and DM so your audience stays connected. Strategy meets bold visuals, with performance marketing where it’s needed, to turn attention into action and clicks into customers.</p>
-        </article>
-        <article class="service reveal">
-          <h3>Brand identity design <small>Your story, shaped into an unforgettable symbol.</small></h3>
-          <p>We dig deep to understand your brand, build moodboards and concepts, refine them together, and deliver a final identity you’ll own with pride. From a single logo to a full rebrand, we make your story impossible to forget.</p>
-        </article>
-        <article class="service reveal">
-          <h3>Website design <small>Where design meets performance.</small></h3>
-          <p>Pixel-perfect, user-focused and search-friendly. Fast load times, mobile-first design, and everything your brand needs to look and work its best online.</p>
-        </article>
-        <article class="service reveal">
-          <h3>Graphic design <small>Your vision + TPN’s flair = (y)our success story.</small></h3>
-          <p>Flyers, company profiles, invites in print and video, banners, sign boards, posters, brochures, menus, forms, illustrations and merchandise, crafted to captivate and connect.</p>
-        </article>
-        <article class="service reveal">
-          <h3>Photography &amp; videography <small>Every frame tells your brand’s story.</small></h3>
-          <p>Aesthetic creative direction blended with seasoned technical skill, to present your products and services in the best light.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="work">
-    <div class="wrap">
-      <h2 class="reveal">Work</h2>
-      <div>
-        <p class="lead reveal">Branding, social media and web projects, shared where we post them.</p>
-        <ul class="work-links" style="margin-top:2rem">
-          <li class="reveal"><a href="https://www.behance.net/sanaahunt/projects" target="_blank" rel="noopener"><b>Behance</b><span>Case studies and full project breakdowns</span></a></li>
-          <li class="reveal"><a href="https://www.instagram.com/the.pineapplenation" target="_blank" rel="noopener"><b>Instagram</b><span>Latest campaigns, reels and daily work</span></a></li>
-          <li class="reveal"><a href="https://in.pinterest.com/thepineapplenation2018/" target="_blank" rel="noopener"><b>Pinterest</b><span>Moodboards and visual references</span></a></li>
-          <li class="reveal"><a href="https://www.linkedin.com/company/the-pineapple-nation/" target="_blank" rel="noopener"><b>LinkedIn</b><span>Company updates and collaborations</span></a></li>
-        </ul>
-      </div>
+      <ul class="service-list">
+        <li class="service reveal"><h3>Social media</h3><p>Strategy, content, design &amp; account handling</p></li>
+        <li class="service reveal"><h3>Graphic design</h3><p>Campaigns, brochures, menus &amp; more</p></li>
+        <li class="service reveal"><h3>Brand identity</h3><p>Logos, guidelines &amp; complete visual systems</p></li>
+        <li class="service reveal"><h3>Website design</h3><p>Clean, responsive &amp; intuitive</p></li>
+        <li class="service reveal"><h3>Performance marketing</h3><p>Ads designed to resonate</p></li>
+        <li class="service reveal"><h3>Photography &amp; videography</h3><p>Visuals that capture warmth &amp; authenticity</p></li>
+      </ul>
     </div>
   </section>
 
@@ -221,7 +182,7 @@
     <div class="wrap">
       <img class="reveal" src="assets/submark-white.png" alt="" width="200">
       <div class="reveal">
-        <h2>Tell us what you’re building. However big or small.</h2>
+        <h2>Don’t worry, you found us just in time!</h2>
         <div class="contact-grid">
           <div>
             <h3>Email</h3>
