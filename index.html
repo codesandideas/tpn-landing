@@ -6,6 +6,15 @@
 <title>The Pineapple Nation</title>
 <meta name="description" content="The Pineapple Nation is a creative collective. Social media, graphic design, brand identity, websites, performance marketing, photography and videography.">
 <link rel="icon" href="assets/submark-black.png">
+<script>
+  // Play the pina colada intro once per tab session (force with ?intro).
+  (function(){try{
+    var force=/[?&]intro/.test(location.search);
+    var seen=sessionStorage.getItem('tpnIntro');
+    var still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(force||(!seen&&!still)) document.documentElement.classList.add('loading');
+  }catch(e){}})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Karla:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -47,12 +56,13 @@
   .nav .menu{display:none}
 
   /* ---------- hero ---------- */
-  .hero .wrap{display:flex;flex-direction:column;justify-content:center;min-height:calc(100vh - 72px);padding-block:clamp(3rem,8vh,6rem)}
-  .hero h1{font-size:clamp(2.2rem,5.6vw,5.2rem);font-weight:300;max-width:22ch;text-wrap:balance;color:var(--slate)}
+  .hero .wrap{display:flex;flex-direction:column;align-items:center;text-align:center;padding-block:clamp(3.5rem,9vh,6.5rem) clamp(3rem,6vw,5rem)}
+  .hero h1{font-size:clamp(2.2rem,5.6vw,5.2rem);font-weight:300;max-width:22ch;margin-inline:auto;text-wrap:balance;color:var(--slate)}
   .hero h1 em{font-style:normal;color:var(--ink)}
   .nb{white-space:nowrap}
-  .hero p{margin-top:1.6rem;font-size:1.25rem;max-width:var(--measure);color:var(--slate)}
-  .actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:2.4rem}
+  .hero-copy{width:100%}
+  .hero-copy p{margin:1.6rem auto 0;font-size:1.25rem;max-width:var(--measure);color:var(--slate)}
+  .actions{display:flex;flex-wrap:wrap;justify-content:center;gap:.8rem;margin-top:2.4rem}
   .btn{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--display);font-size:.82rem;letter-spacing:.2em;text-transform:uppercase;padding:1rem 1.6rem .85rem;border:var(--rule) solid var(--ink);border-radius:999px;transition:background .25s,color .25s}
   .btn.fill{background:var(--ink);color:var(--paper)}
   .btn.fill:hover{background:var(--paper);color:var(--ink)}
@@ -66,12 +76,52 @@
   .hero-copy .actions{animation-delay:.35s}
   @keyframes rise{to{opacity:1;transform:none}}
 
+  /* ---------- showreel ---------- */
+  .reel{position:relative;width:100%;aspect-ratio:16/9;margin-top:clamp(3rem,6vw,5rem);border-radius:clamp(14px,2vw,24px);overflow:hidden;background:var(--ink);color:var(--paper);opacity:0;transform:translateY(24px);animation:rise .9s cubic-bezier(.2,.7,.2,1) .5s forwards}
+  .reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s}
+  .reel.has-video video{opacity:1}
+  .reel.has-video .reel-fallback{display:none}
+  .reel-fallback{position:absolute;inset:0;display:grid;place-items:center}
+  .reel-mark{position:absolute;top:clamp(16px,3vw,32px);left:clamp(16px,3vw,32px);width:clamp(34px,4vw,54px)}
+  .reel-note{position:absolute;left:clamp(16px,3vw,32px);bottom:clamp(14px,2.6vw,28px);font-size:.9rem;color:#a9a9a5}
+  .reel-titles{list-style:none;position:relative;width:100%;height:1.25em;font-family:var(--display);font-weight:300;font-size:clamp(2.2rem,7vw,6rem);line-height:1.25}
+  .reel-titles li{position:absolute;inset:0;opacity:0;animation:reelTitle 7.5s cubic-bezier(.2,.7,.2,1) infinite}
+  .reel-titles li:nth-child(2){animation-delay:2.5s}
+  .reel-titles li:nth-child(3){animation-delay:5s}
+  @keyframes reelTitle{0%{opacity:0;transform:translateY(35%)}7%{opacity:1;transform:none}29%{opacity:1;transform:none}35%{opacity:0;transform:translateY(-35%)}100%{opacity:0}}
+
+  /* ---------- pina colada intro ---------- */
+  .loader{display:none}
+  html.loading body{overflow:hidden}
+  html.loading .loader{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem;background:var(--paper);cursor:pointer;animation:loaderOut .7s cubic-bezier(.7,0,.3,1) 2.9s forwards}
+  html.loading .loader.skip{animation:loaderOut .5s cubic-bezier(.7,0,.3,1) forwards}
+  @keyframes loaderOut{to{transform:translateY(-100%);visibility:hidden}}
+  html.loading .hero-mark img,html.loading .hero-copy>*,html.loading .reel,html.loading .reel-titles li{animation-play-state:paused}
+  .loader-stage{position:relative;width:min(210px,48vw);aspect-ratio:200/260;transform-origin:50% 100%;animation:clink .45s ease-in-out 2.45s}
+  .loader-stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .loader .g-line{fill:none;stroke:var(--ink);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+  .loader .bowl{animation:draw .7s cubic-bezier(.5,0,.2,1) 1s forwards}
+  .loader .rim{animation:draw .45s cubic-bezier(.5,0,.2,1) 1.05s forwards}
+  .loader .stem{animation:draw .5s cubic-bezier(.5,0,.2,1) 1.25s forwards}
+  .loader .straw{animation:draw .4s cubic-bezier(.5,0,.2,1) 2.15s forwards}
+  .loader .liquid{fill:#f4ecd2;transform:translateY(122px);animation:pour .8s cubic-bezier(.4,0,.2,1) 1.5s forwards}
+  .loader-pine{position:absolute;width:65%;left:17.5%;top:20%;opacity:0;animation:pinePop .5s cubic-bezier(.2,.7,.2,1) .1s forwards,pineHop .85s cubic-bezier(.5,0,.2,1) .75s forwards}
+  .loader-text{font-family:var(--display);font-weight:300;font-size:1.05rem;letter-spacing:.04em;color:var(--slate);opacity:0;animation:fadeIn .5s ease .35s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes pour{to{transform:translateY(14px)}}
+  @keyframes fadeIn{to{opacity:1}}
+  @keyframes pinePop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+  @keyframes pineHop{0%{opacity:1;transform:none}38%{opacity:1;transform:translate(0,-24%) rotate(-14deg)}100%{opacity:1;transform:translate(-35%,-74%) scale(.5) rotate(-18deg)}}
+  @keyframes clink{0%,100%{transform:none}30%{transform:rotate(-4deg)}65%{transform:rotate(3deg)}}
+
   /* scroll reveals */
   .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
   .reveal.in{opacity:1;transform:none}
   .service.reveal{transform:translateY(18px)}
   @media (prefers-reduced-motion:reduce){
-    .hero-mark img,.hero-copy>*{animation:none;opacity:1;transform:none}
+    .hero-mark img,.hero-copy>*,.reel{animation:none;opacity:1;transform:none}
+    .reel-titles li{animation:none}
+    .reel-titles li:first-child{opacity:1}
     .reveal{opacity:1;transform:none;transition:none}
   }
 
@@ -126,6 +176,21 @@
 </head>
 <body>
 
+<div class="loader" aria-hidden="true" title="Skip intro">
+  <div class="loader-stage">
+    <svg viewBox="0 0 200 260">
+      <defs><clipPath id="bowl"><path d="M50 40 C48 110 70 150 100 158 C130 150 152 110 150 40 Z"/></clipPath></defs>
+      <g clip-path="url(#bowl)"><rect class="liquid" x="40" y="40" width="120" height="130"/></g>
+      <path class="g-line straw" pathLength="1" d="M118 132 L134 24 L160 6"/>
+      <path class="g-line bowl" pathLength="1" d="M50 40 C48 110 70 150 100 158 C130 150 152 110 150 40"/>
+      <path class="g-line rim" pathLength="1" d="M44 40 H156"/>
+      <path class="g-line stem" pathLength="1" d="M100 158 V222 M68 224 H132"/>
+    </svg>
+    <img class="loader-pine" src="assets/submark-black.png" alt="">
+  </div>
+  <p class="loader-text">Blending something fresh</p>
+</div>
+
 <header class="nav" id="nav">
   <div class="wrap">
     <a href="#top" aria-label="The Pineapple Nation, home"><img src="assets/logo-black.png" alt="The Pineapple Nation"></a>
@@ -148,6 +213,17 @@
         <div class="actions">
           <a class="btn fill" href="mailto:sanaa@thepineapplenation.com">Get in touch</a>
           <a class="btn line" href="https://www.behance.net/sanaahunt/projects" target="_blank" rel="noopener">See our work</a>
+        </div>
+      </div>
+      <div class="reel">
+        <!-- Drop the showreel at assets/showreel.mp4 and it plays here automatically. -->
+        <video muted loop playsinline preload="metadata" aria-label="The Pineapple Nation showreel">
+          <source src="assets/showreel.mp4" type="video/mp4">
+        </video>
+        <div class="reel-fallback" role="img" aria-label="Showreel coming soon">
+          <img class="reel-mark" src="assets/submark-white.png" alt="">
+          <ul class="reel-titles" aria-hidden="true"><li>Branding</li><li>Social media</li><li>Websites</li></ul>
+          <p class="reel-note">Showreel coming soon</p>
         </div>
       </div>
     </div>
@@ -221,6 +297,34 @@
     const open=nav.classList.toggle('open');
     btn.setAttribute('aria-expanded',open);
   }
+  // pina colada intro: finish, skip, and hand off to the hero
+  const introDone=new Promise(resolve=>{
+    const root=document.documentElement, loader=document.querySelector('.loader');
+    if(!root.classList.contains('loading')){ loader.remove(); return resolve(); }
+    let finished=false;
+    function finish(){
+      if(finished) return; finished=true;
+      root.classList.remove('loading'); loader.remove();
+      try{ sessionStorage.setItem('tpnIntro','1'); }catch(e){}
+      resolve();
+    }
+    const timer=setTimeout(finish,3650);
+    function skip(){ clearTimeout(timer); loader.classList.add('skip'); setTimeout(finish,520); }
+    loader.addEventListener('click',skip,{once:true});
+    addEventListener('keydown',skip,{once:true});
+  });
+
+  // showreel: switch to the real video once it can play
+  (function(){
+    const reel=document.querySelector('.reel'), v=reel.querySelector('video');
+    v.muted=true;
+    const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+    v.addEventListener('loadeddata',()=>{
+      reel.classList.add('has-video');
+      if(!still) introDone.then(()=>v.play().catch(()=>{}));
+    });
+  })();
+
   // pineapple follows the pointer
   (function(){
     const hero=document.querySelector('.hero'), mark=document.querySelector('.hero-mark'), img=mark.querySelector('img');
@@ -243,8 +347,10 @@
       });
       hero.addEventListener('mouseleave',()=>{ tx=ty=tr=0; kick(); });
     }
-    img.addEventListener('animationend',start,{once:true});
-    setTimeout(()=>{ if(!mark.classList.contains('live')) start(); },1600);
+    introDone.then(()=>{
+      img.addEventListener('animationend',start,{once:true});
+      setTimeout(()=>{ if(!mark.classList.contains('live')) start(); },1600);
+    });
   })();
 
   const io=new IntersectionObserver((entries)=>{
