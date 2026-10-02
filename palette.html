@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="assets/submark-black.png">
 <script>
-  // Play the pina colada intro once per tab session (force with ?intro).
+  // Play the pineapple intro once per tab session (force with ?intro).
   (function(){try{
     var force=/[?&]intro/.test(location.search);
     var seen=sessionStorage.getItem('tpnIntroPalette');
@@ -158,29 +158,19 @@
   .reveal{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
   .reveal.in{opacity:1;transform:none}
 
-  /* ---------- pina colada intro ---------- */
+  /* ---------- pineapple intro ---------- */
   .loader{display:none}
   html.loading body{overflow:hidden}
   html.loading .loader{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem;background:var(--paper);cursor:pointer;animation:loaderOut .7s cubic-bezier(.7,0,.3,1) 2.9s forwards}
   html.loading .loader.skip{animation:loaderOut .5s cubic-bezier(.7,0,.3,1) forwards}
   @keyframes loaderOut{to{transform:translateY(-100%);visibility:hidden}}
   html.loading .hero-copy>*,html.loading .reel,html.loading .reel-titles li{animation-play-state:paused}
-  .loader-stage{position:relative;width:min(210px,48vw);aspect-ratio:200/260;transform-origin:50% 100%;animation:clink .45s ease-in-out 2.45s}
-  .loader-stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-  .loader .g-line{fill:none;stroke:var(--ink);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
-  .loader .straw{stroke:var(--red);animation:draw .4s cubic-bezier(.5,0,.2,1) 2.15s forwards}
-  .loader .bowl{animation:draw .7s cubic-bezier(.5,0,.2,1) 1s forwards}
-  .loader .rim{animation:draw .45s cubic-bezier(.5,0,.2,1) 1.05s forwards}
-  .loader .stem{animation:draw .5s cubic-bezier(.5,0,.2,1) 1.25s forwards}
-  .loader .liquid{fill:#f6e4b3;transform:translateY(122px);animation:pour .8s cubic-bezier(.4,0,.2,1) 1.5s forwards}
-  .loader-pine{position:absolute;width:65%;left:17.5%;top:20%;opacity:0;animation:pinePop .5s var(--ease) .1s forwards,pineHop .85s cubic-bezier(.5,0,.2,1) .75s forwards}
-  .loader-text{font-family:var(--display);font-weight:300;font-size:1.05rem;letter-spacing:.04em;color:var(--slate);opacity:0;animation:fadeIn .5s ease .35s forwards}
-  @keyframes draw{to{stroke-dashoffset:0}}
-  @keyframes pour{to{transform:translateY(14px)}}
-  @keyframes fadeIn{to{opacity:1}}
-  @keyframes pinePop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
-  @keyframes pineHop{0%{opacity:1;transform:none}38%{opacity:1;transform:translate(0,-24%) rotate(-14deg)}100%{opacity:1;transform:translate(-35%,-74%) scale(.5) rotate(-18deg)}}
-  @keyframes clink{0%,100%{transform:none}30%{transform:rotate(-4deg)}65%{transform:rotate(3deg)}}
+  .loader-mark{position:relative;width:min(170px,40vw);aspect-ratio:1199/1323;opacity:0;animation:markPop .6s var(--ease) .1s forwards,wobble .55s ease-in-out 2.05s}
+  .loader-mark img{width:100%;height:100%}
+  .loader-fill{position:absolute;inset:0;background:linear-gradient(to top,var(--blue) 0 34%,var(--red) 34% 67%,var(--yellow) 67% 100%);-webkit-mask:url(assets/submark-black.png) center/100% 100% no-repeat;mask:url(assets/submark-black.png) center/100% 100% no-repeat;clip-path:inset(100% 0 0 0);animation:fillUp 1.3s cubic-bezier(.5,0,.2,1) .7s forwards}
+  @keyframes markPop{from{opacity:0;transform:scale(.75) rotate(-10deg)}to{opacity:1;transform:none}}
+  @keyframes fillUp{to{clip-path:inset(0 0 0 0)}}
+  @keyframes wobble{0%,100%{transform:none}30%{transform:rotate(-6deg)}65%{transform:rotate(4deg)}}
 
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
@@ -212,18 +202,10 @@
 <body>
 
 <div class="loader" aria-hidden="true" title="Skip intro">
-  <div class="loader-stage">
-    <svg viewBox="0 0 200 260">
-      <defs><clipPath id="bowl"><path d="M50 40 C48 110 70 150 100 158 C130 150 152 110 150 40 Z"/></clipPath></defs>
-      <g clip-path="url(#bowl)"><rect class="liquid" x="40" y="40" width="120" height="130"/></g>
-      <path class="g-line straw" pathLength="1" d="M118 132 L134 24 L160 6"/>
-      <path class="g-line bowl" pathLength="1" d="M50 40 C48 110 70 150 100 158 C130 150 152 110 150 40"/>
-      <path class="g-line rim" pathLength="1" d="M44 40 H156"/>
-      <path class="g-line stem" pathLength="1" d="M100 158 V222 M68 224 H132"/>
-    </svg>
-    <img class="loader-pine" src="assets/submark-black.png" alt="">
+  <div class="loader-mark">
+    <img src="assets/submark-black.png" alt="">
+    <span class="loader-fill"></span>
   </div>
-  <p class="loader-text">Blending something fresh</p>
 </div>
 
 <header class="nav" id="nav">
@@ -373,7 +355,7 @@
   }
   document.querySelectorAll('#menu a').forEach(a=>a.addEventListener('click',()=>document.getElementById('nav').classList.remove('open')));
 
-  // pina colada intro: finish, skip, and hand off to the hero
+  // pineapple intro: finish, skip, and hand off to the hero
   const introDone=new Promise(resolve=>{
     const root=document.documentElement, loader=document.querySelector('.loader');
     if(!root.classList.contains('loading')){ loader.remove(); return resolve(); }
