@@ -110,9 +110,12 @@
   .field.full{grid-column:1/-1}
   .field label{font-family:var(--display);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:#dfe7f4}
   .field label span{text-transform:none;letter-spacing:.02em;color:#b9cae6}
-  .field input,.field textarea{font:inherit;color:var(--paper);background:transparent;border:0;border-bottom:1.5px solid rgba(255,255,255,.55);border-radius:0;padding:.55rem 0;transition:border-color .25s}
+  .field input,.field textarea,.field select{font:inherit;color:var(--paper);background:transparent;border:0;border-bottom:1.5px solid rgba(255,255,255,.55);border-radius:0;padding:.55rem 0;transition:border-color .25s}
   .field textarea{resize:vertical;min-height:7.5rem}
-  .field input:focus,.field textarea:focus{outline:none;border-color:var(--yellow)}
+  .field select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:1.8rem;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23ffffff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right .2rem center}
+  .field select:has(option[value=""]:checked){color:#b9cae6}
+  .field select option{color:var(--ink);background:var(--paper)}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--yellow)}
   .field input:user-invalid,.field textarea:user-invalid,.field .touched:invalid{border-color:#ffb3a6}
   .form .trap{position:absolute;left:-9999px}
   .form-foot{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.6rem;margin-top:.6rem}
@@ -277,9 +280,22 @@
           <label for="f-email">Email</label>
           <input id="f-email" name="email" type="email" autocomplete="email" required>
         </div>
-        <div class="field full">
+        <div class="field">
           <label for="f-phone">Phone <span>(optional)</span></label>
           <input id="f-phone" name="phone" type="tel" autocomplete="tel">
+        </div>
+        <div class="field">
+          <label for="f-service">Service <span>(optional)</span></label>
+          <select id="f-service" name="service">
+            <option value="">Choose a service</option>
+            <option>Social media</option>
+            <option>Graphic design</option>
+            <option>Brand identity</option>
+            <option>Website design</option>
+            <option>Performance marketing</option>
+            <option>Photography &amp; videography</option>
+            <option>Something else</option>
+          </select>
         </div>
         <div class="field full">
           <label for="f-message">How can we help?</label>
@@ -380,7 +396,7 @@
       const d=Object.fromEntries(new FormData(form));
       if(d._gotcha) return;
       if(!FORM_ENDPOINT){
-        const body=`${d.message}\n\n${d.name}\n${d.email}${d.phone?'\n'+d.phone:''}`;
+        const body=`${d.service?'Service: '+d.service+'\n\n':''}${d.message}\n\n${d.name}\n${d.email}${d.phone?'\n'+d.phone:''}`;
         location.href=`mailto:sanaa@thepineapplenation.com?cc=sabareesh@thepineapplenation.com&subject=${encodeURIComponent('Website enquiry from '+d.name)}&body=${encodeURIComponent(body)}`;
         say('Your email app is opening with your message. Press send there to reach us.');
         return;
