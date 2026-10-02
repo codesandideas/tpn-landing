@@ -24,7 +24,7 @@
     --ink:#1a1a1a;
     --paper:#ffffff;
     --red:#d53e27;
-    --red-deep:#b8321e;
+    --blue-deep:#234f91;
     --blue:#2b61b1;
     --yellow:#e9b746;
     --slate:#5f5f5c;
@@ -61,8 +61,8 @@
   .hero-copy p{margin:1.6rem auto 0;font-size:1.25rem;color:var(--slate)}
   .actions{display:flex;flex-wrap:wrap;justify-content:center;gap:.8rem;margin-top:2.4rem}
   .btn{display:inline-flex;align-items:center;font-family:var(--display);font-size:.82rem;letter-spacing:.18em;text-transform:uppercase;padding:1rem 1.7rem .85rem;border:1.5px solid var(--ink);border-radius:999px;transition:background .25s,color .25s,border-color .25s}
-  .btn.fill{background:var(--red);border-color:var(--red);color:var(--paper)}
-  .btn.fill:hover{background:var(--red-deep);border-color:var(--red-deep)}
+  .btn.fill{background:var(--blue);border-color:var(--blue);color:var(--paper)}
+  .btn.fill:hover{background:var(--blue-deep);border-color:var(--blue-deep)}
   .btn.line:hover{background:var(--ink);color:var(--paper)}
   .hero-copy>*{opacity:0;transform:translateY(16px);animation:rise .8s var(--ease) forwards}
   .hero-copy p{animation-delay:.15s}
@@ -100,18 +100,39 @@
   .service h3{font-size:clamp(1.3rem,2vw,1.75rem);font-weight:400}
   .service p{color:rgba(26,26,26,.78)}
 
-  /* contact: one solid blue block */
+  /* contact: one solid blue block with the form */
   .contact{background:var(--blue);color:var(--paper)}
-  .contact .wrap{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(1.5rem,4vw,4rem);padding-block:clamp(4.5rem,10vw,8rem)}
-  .contact img{width:clamp(120px,14vw,190px)}
-  .contact h2{font-size:clamp(2rem,3.6vw,3.2rem);max-width:16ch;text-wrap:balance}
-  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem 3rem;margin-top:3rem;max-width:44rem}
-  .contact-grid h3{font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;font-weight:400;color:#dfe7f4;margin-bottom:.9rem}
-  .contact-grid a{display:block;width:fit-content;padding:.3rem 0;border-bottom:1.5px solid transparent;transition:border-color .25s}
-  .contact-grid a:hover{border-color:var(--yellow)}
+  .contact .wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(2rem,5vw,5rem);padding-block:clamp(4.5rem,10vw,8rem)}
+  .contact h2{font-size:clamp(2rem,3.6vw,3.2rem);max-width:14ch;text-wrap:balance;align-self:start}
+  .contact :focus-visible{outline-color:var(--yellow)}
+  .form{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem 2rem}
+  .field{display:flex;flex-direction:column;gap:.45rem}
+  .field.full{grid-column:1/-1}
+  .field label{font-family:var(--display);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:#dfe7f4}
+  .field label span{text-transform:none;letter-spacing:.02em;color:#b9cae6}
+  .field input,.field textarea{font:inherit;color:var(--paper);background:transparent;border:0;border-bottom:1.5px solid rgba(255,255,255,.55);border-radius:0;padding:.55rem 0;transition:border-color .25s}
+  .field textarea{resize:vertical;min-height:7.5rem}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--yellow)}
+  .field input:user-invalid,.field textarea:user-invalid,.field .touched:invalid{border-color:#ffb3a6}
+  .form .trap{position:absolute;left:-9999px}
+  .form-foot{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.6rem;margin-top:.6rem}
+  .btn.light{background:var(--paper);border-color:var(--paper);color:var(--blue);cursor:pointer}
+  .btn.light:hover{background:var(--yellow);border-color:var(--yellow);color:var(--ink)}
+  .btn.light[disabled]{opacity:.6;cursor:progress}
+  .form-status{font-size:.95rem;color:#dfe7f4;min-height:1.5em}
+  .form-status.error{color:#ffd2ca}
 
-  footer{background:var(--ink);color:#a9a9a5;font-size:.85rem}
-  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem;padding-block:1.4rem}
+  /* footer: brand, reach us, follow, then the legal line */
+  footer{background:var(--ink);color:#c9c9c5;font-size:.95rem}
+  .foot-top{display:grid;grid-template-columns:1fr auto auto auto;gap:2.5rem clamp(2rem,5vw,5rem);padding-block:clamp(3.5rem,7vw,5rem) clamp(2.5rem,5vw,3.5rem)}
+  .foot-top img{width:clamp(140px,14vw,180px)}
+  .foot-top h3{font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;font-weight:400;color:#8f8f8b;margin-bottom:.9rem}
+  .foot-top a{display:block;width:fit-content;padding:.25rem 0;color:var(--paper);border-bottom:1.5px solid transparent;transition:border-color .25s}
+  .foot-top a:hover{border-color:var(--yellow)}
+  footer :focus-visible{outline-color:var(--paper)}
+  .foot-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem;padding-block:1.4rem;border-top:1px solid #333331;font-size:.85rem;color:#8f8f8b}
+  .foot-bottom a{color:#c9c9c5}
+  .foot-bottom a:hover{color:var(--paper)}
 
   /* scroll reveals */
   .reveal{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
@@ -152,6 +173,8 @@
   /* ---------- responsive ---------- */
   @media (max-width:900px){
     .section .wrap,.contact .wrap{grid-template-columns:1fr}
+    .foot-top{grid-template-columns:auto auto auto;justify-content:start}
+    .foot-brand{grid-column:1/-1}
     .service{grid-template-columns:1fr;gap:.35rem}
   }
   @media (max-width:640px){
@@ -159,7 +182,8 @@
     .nav .menu{display:inline-block;font-family:var(--display);font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;background:none;border:0;padding:.4rem 0;cursor:pointer;color:inherit}
     .nav.open ul{display:flex;flex-direction:column;gap:0;position:absolute;left:0;right:0;top:72px;background:var(--paper);border-bottom:1px solid var(--mist)}
     .nav.open li a{display:block;padding:1.1rem var(--gutter);border-top:1px solid var(--mist);border-bottom:0}
-    .contact-grid{grid-template-columns:1fr}
+    .form{grid-template-columns:1fr}
+    .foot-top{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -243,37 +267,62 @@
 
   <section class="contact" id="contact">
     <div class="wrap">
-      <img class="reveal" src="assets/submark-white.png" alt="">
-      <div class="reveal">
-        <h2>Don’t worry, you found us just in time!</h2>
-        <div class="contact-grid">
-          <div>
-            <h3>Email</h3>
-            <a href="mailto:sanaa@thepineapplenation.com">sanaa@thepineapplenation.com</a>
-            <a href="mailto:sabareesh@thepineapplenation.com">sabareesh@thepineapplenation.com</a>
-          </div>
-          <div>
-            <h3>Phone</h3>
-            <a href="tel:+918939166444">+91 89391 66444</a>
-            <a href="tel:+917483036232">+91 74830 36232</a>
-          </div>
-          <div>
-            <h3>Follow</h3>
-            <a href="https://www.instagram.com/the.pineapplenation" target="_blank" rel="noopener">Instagram</a>
-            <a href="https://www.behance.net/sanaahunt/projects" target="_blank" rel="noopener">Behance</a>
-            <a href="https://in.pinterest.com/thepineapplenation2018/" target="_blank" rel="noopener">Pinterest</a>
-            <a href="https://www.linkedin.com/company/the-pineapple-nation/" target="_blank" rel="noopener">LinkedIn</a>
-          </div>
+      <h2 class="reveal">Don’t worry, you found us just in time!</h2>
+      <form class="form reveal" id="contact-form" novalidate>
+        <div class="field">
+          <label for="f-name">Name</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required>
         </div>
-      </div>
+        <div class="field">
+          <label for="f-email">Email</label>
+          <input id="f-email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="field full">
+          <label for="f-phone">Phone <span>(optional)</span></label>
+          <input id="f-phone" name="phone" type="tel" autocomplete="tel">
+        </div>
+        <div class="field full">
+          <label for="f-message">How can we help?</label>
+          <textarea id="f-message" name="message" rows="4" required></textarea>
+        </div>
+        <input class="trap" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="form-foot">
+          <button class="btn light" type="submit">Send message</button>
+          <p class="form-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
     </div>
   </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <span>© <span id="year"></span> The Pineapple Nation</span>
-    <span>A creative collective</span>
+    <div class="foot-top">
+      <div class="foot-brand">
+        <img src="assets/logo-white.png" alt="The Pineapple Nation">
+      </div>
+      <div>
+        <h3>Email</h3>
+        <a href="mailto:sanaa@thepineapplenation.com">sanaa@thepineapplenation.com</a>
+        <a href="mailto:sabareesh@thepineapplenation.com">sabareesh@thepineapplenation.com</a>
+      </div>
+      <div>
+        <h3>Phone</h3>
+        <a href="tel:+918939166444">+91 89391 66444</a>
+        <a href="tel:+917483036232">+91 74830 36232</a>
+      </div>
+      <div>
+        <h3>Follow</h3>
+        <a href="https://www.instagram.com/the.pineapplenation" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.behance.net/sanaahunt/projects" target="_blank" rel="noopener">Behance</a>
+        <a href="https://in.pinterest.com/thepineapplenation2018/" target="_blank" rel="noopener">Pinterest</a>
+        <a href="https://www.linkedin.com/company/the-pineapple-nation/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span id="year"></span> The Pineapple Nation. A creative collective.</span>
+      <a href="#top">Back to top</a>
+    </div>
   </div>
 </footer>
 
@@ -310,6 +359,40 @@
     v.addEventListener('loadeddata',()=>{
       reel.classList.add('has-video');
       if(!still) introDone.then(()=>v.play().catch(()=>{}));
+    });
+  })();
+
+  // contact form
+  // Leave FORM_ENDPOINT empty to open the visitor's email app with the message filled in.
+  // Paste a form-service URL (for example a Formspree endpoint) to receive messages directly.
+  const FORM_ENDPOINT='';
+  (function(){
+    const form=document.getElementById('contact-form'), status=form.querySelector('.form-status'), btn=form.querySelector('button');
+    function say(msg,isError){ status.textContent=msg; status.classList.toggle('error',!!isError); }
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();
+      if(!form.checkValidity()){
+        form.querySelectorAll(':invalid').forEach(el=>el.classList.add('touched'));
+        const first=form.querySelector(':invalid');
+        say(first.type==='email'&&first.value ? 'Enter an email address like name@example.com.' : 'Fill in your name, email and message to send.', true);
+        first.focus(); return;
+      }
+      const d=Object.fromEntries(new FormData(form));
+      if(d._gotcha) return;
+      if(!FORM_ENDPOINT){
+        const body=`${d.message}\n\n${d.name}\n${d.email}${d.phone?'\n'+d.phone:''}`;
+        location.href=`mailto:sanaa@thepineapplenation.com?cc=sabareesh@thepineapplenation.com&subject=${encodeURIComponent('Website enquiry from '+d.name)}&body=${encodeURIComponent(body)}`;
+        say('Your email app is opening with your message. Press send there to reach us.');
+        return;
+      }
+      btn.disabled=true; say('Sending…');
+      try{
+        const r=await fetch(FORM_ENDPOINT,{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}});
+        if(!r.ok) throw new Error(r.status);
+        form.reset(); say('Message sent. We’ll be in touch soon.');
+      }catch(err){
+        say('Message didn’t send. Check your connection and try again, or email sanaa@thepineapplenation.com.', true);
+      }finally{ btn.disabled=false; }
     });
   })();
 
