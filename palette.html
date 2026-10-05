@@ -73,19 +73,15 @@
   .hero-copy .actions{animation-delay:.3s}
   @keyframes rise{to{opacity:1;transform:none}}
 
-  /* ---------- showreel ---------- */
-  .reel{position:relative;width:100%;aspect-ratio:16/9;margin-top:clamp(3rem,6vw,5rem);border-radius:clamp(14px,2vw,24px);overflow:hidden;background:var(--ink);color:var(--paper);opacity:0;transform:translateY(24px);animation:rise .9s var(--ease) .45s forwards}
-  .reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s}
-  .reel.has-video video{opacity:1}
-  .reel.has-video .reel-fallback{display:none}
-  .reel-fallback{position:absolute;inset:0;display:grid;place-items:center}
-  .reel-titles{list-style:none;position:relative;width:100%;height:1.25em;font-family:var(--display);font-weight:300;font-size:clamp(2.2rem,7vw,6rem);line-height:1.25}
-  .reel-titles li{position:absolute;inset:0;opacity:0;animation:reelTitle 7.5s var(--ease) infinite}
-  .reel-titles li:nth-child(1){color:var(--yellow)}
-  .reel-titles li:nth-child(2){animation-delay:2.5s}
-  .reel-titles li:nth-child(3){animation-delay:5s;color:#f08f7f}
-  .reel-note{position:absolute;left:clamp(16px,3vw,32px);bottom:clamp(14px,2.6vw,28px);font-size:.9rem;color:#a9a9a5}
-  @keyframes reelTitle{0%{opacity:0;transform:translateY(35%)}7%{opacity:1;transform:none}29%{opacity:1;transform:none}35%{opacity:0;transform:translateY(-35%)}100%{opacity:0}}
+  /* ---------- work carousel ---------- */
+  .reel{--tile:clamp(200px,24vw,320px);overflow:hidden;padding-bottom:clamp(3.5rem,7vw,6rem);-webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);opacity:0;transform:translateY(24px);animation:rise .9s var(--ease) .45s forwards}
+  .reel-track{display:flex;width:max-content;animation:marquee 80s linear infinite}
+  .reel:hover .reel-track{animation-play-state:paused}
+  .reel-set{display:flex;list-style:none}
+  .reel-set li{flex:none;width:var(--tile);aspect-ratio:1;margin-right:clamp(12px,1.4vw,20px);border-radius:clamp(10px,1.2vw,16px);overflow:hidden;background:#ece9e2}
+  .reel-set img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+  .reel-set li:hover img{transform:scale(1.04)}
+  @keyframes marquee{to{transform:translateX(-50%)}}
 
   /* ---------- sections ---------- */
   .section .wrap{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(1.5rem,4vw,4rem);padding-block:clamp(4.5rem,10vw,8rem)}
@@ -164,7 +160,7 @@
   html.loading .loader{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem;background:var(--paper);cursor:pointer;animation:loaderOut .7s cubic-bezier(.7,0,.3,1) 2.9s forwards}
   html.loading .loader.skip{animation:loaderOut .5s cubic-bezier(.7,0,.3,1) forwards}
   @keyframes loaderOut{to{transform:translateY(-100%);visibility:hidden}}
-  html.loading .hero-copy>*,html.loading .reel,html.loading .reel-titles li{animation-play-state:paused}
+  html.loading .hero-copy>*,html.loading .reel,html.loading .reel-track{animation-play-state:paused}
   .loader-mark{position:relative;width:min(170px,40vw);aspect-ratio:1199/1323;opacity:0;animation:markPop .6s var(--ease) .1s forwards,wobble .55s ease-in-out 2.05s}
   .loader-mark img{width:100%;height:100%}
   .loader-fill{position:absolute;inset:0;background:linear-gradient(to top,var(--blue) 0 34%,var(--red) 34% 67%,var(--yellow) 67% 100%);-webkit-mask:url(assets/submark-black.png) center/100% 100% no-repeat;mask:url(assets/submark-black.png) center/100% 100% no-repeat;clip-path:inset(100% 0 0 0);animation:fillUp 1.3s cubic-bezier(.5,0,.2,1) .7s forwards}
@@ -175,8 +171,8 @@
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
     .hero-copy>*,.reel{animation:none;opacity:1;transform:none}
-    .reel-titles li{animation:none}
-    .reel-titles li:first-child{opacity:1}
+    .reel{overflow-x:auto}
+    .reel-track{animation:none}
     .reveal{opacity:1;transform:none;transition:none}
   }
 
@@ -231,15 +227,31 @@
           <a class="btn line" href="https://www.behance.net/sanaahunt/projects" target="_blank" rel="noopener">See our work</a>
         </div>
       </div>
-      <div class="reel">
-        <!-- Drop the showreel at assets/showreel.mp4 and it plays here automatically. -->
-        <video muted loop playsinline preload="metadata" aria-label="The Pineapple Nation showreel">
-          <source src="assets/showreel.mp4" type="video/mp4">
-        </video>
-        <div class="reel-fallback" role="img" aria-label="Showreel coming soon">
-          <ul class="reel-titles" aria-hidden="true"><li>Branding</li><li>Social media</li><li>Websites</li></ul>
-          <p class="reel-note">Showreel coming soon</p>
-        </div>
+    </div>
+    <div class="reel" aria-label="Selected work">
+      <div class="reel-track">
+        <ul class="reel-set">
+          <li><img src="assets/work/work-05.webp" alt="Gift wrap with a gold bow" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-01.webp" alt="Sashwatha’s Snack Squad table tent menu" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-09.webp" alt="Ghee roast dosa with chutneys" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-13.webp" alt="HunTR Advisory business cards" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-06.webp" alt="Ruby cocktail ring on red" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-17.webp" alt="Dolphin stud earrings campaign" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-02.webp" alt="Onam Sadhya poster for Sashwatha Café" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-10.webp" alt="Tulsi Madras business cards" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-14.webp" alt="HunTR Advisory monogram on a laptop" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-07.webp" alt="Silver jhumka earring" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-18.webp" alt="“Wear your world” charm necklace campaign" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-03.webp" alt="Snack Squad table tent, front and back" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-11.webp" alt="Tulsi Madras saree care booklet" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-15.webp" alt="Sashwatha Café Swiggy delivery post" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-08.webp" alt="Food styling: boondi over curd rice" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-19.webp" alt="Butterfly stud earrings campaign" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-04.webp" alt="VBJ card on linen" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-12.webp" alt="Tulsi Madras packaging box" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-16.webp" alt="Sashwatha Café medhu vada social post" width="720" height="720" decoding="async"></li>
+          <li><img src="assets/work/work-20.webp" alt="The Paw Club summer pool party poster" width="720" height="720" decoding="async"></li>
+        </ul>
       </div>
     </div>
   </section>
@@ -372,15 +384,14 @@
     addEventListener('keydown',skip,{once:true});
   });
 
-  // showreel: switch to the real video once it can play
+  // work carousel: a second copy of the tiles makes the loop seamless
   (function(){
-    const reel=document.querySelector('.reel'), v=reel.querySelector('video');
-    const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
-    v.muted=true;
-    v.addEventListener('loadeddata',()=>{
-      reel.classList.add('has-video');
-      if(!still) introDone.then(()=>v.play().catch(()=>{}));
-    });
+    const set=document.querySelector('.reel-set');
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+    const copy=set.cloneNode(true);
+    copy.setAttribute('aria-hidden','true');
+    copy.querySelectorAll('img').forEach(i=>i.alt='');
+    set.parentNode.appendChild(copy);
   })();
 
   // header turns brand black once the page is scrolled
