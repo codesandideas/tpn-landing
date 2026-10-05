@@ -1,2 +1,5 @@
 .claude/
 .playwright-mcp/
+.wrangler/
+.dev.vars
+node_modules/

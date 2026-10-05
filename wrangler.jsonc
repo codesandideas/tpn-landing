@@ -1,0 +1,27 @@
+{
+  // The site and the contact form backend, deployed together as one Worker.
+  // Static pages are served from the repo root; .assetsignore keeps the rest out.
+  "name": "tpn-site",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/admin", "/admin/*"]
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "tpn-forms", "database_id": "c5180dd8-8e72-4b7d-96c5-c5e946dc5208" }
+  ],
+  "vars": {
+    // Comma-separated list of who gets an email for every enquiry.
+    "NOTIFY_TO": "sanaa@thepineapplenation.com,sabareesh@thepineapplenation.com",
+    // Must be on a domain verified in Resend.
+    "NOTIFY_FROM": "The Pineapple Nation website <website@send.thepineapplenation.com>",
+    // Cloudflare Access protects /admin. Fill both in once the Access app exists;
+    // until then /admin stays closed.
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": ""
+  },
+  // Secrets, set with `wrangler secret put`: RESEND_API_KEY, TURNSTILE_SECRET
+  "observability": { "enabled": true }
+}

@@ -1,0 +1,12 @@
+.git
+.gitignore
+.assetsignore
+.claude
+.playwright-mcp
+.wrangler
+.dev.vars
+node_modules
+output
+worker
+wrangler.jsonc
+*.md
