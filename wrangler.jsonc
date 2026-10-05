@@ -16,12 +16,9 @@
     // Comma-separated list of who gets an email for every enquiry.
     "NOTIFY_TO": "sanaa@thepineapplenation.com,sabareesh@thepineapplenation.com",
     // Must be on a domain verified in Resend.
-    "NOTIFY_FROM": "The Pineapple Nation website <website@send.thepineapplenation.com>",
-    // Cloudflare Access protects /admin. Fill both in once the Access app exists;
-    // until then /admin stays closed.
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": ""
+    "NOTIFY_FROM": "The Pineapple Nation website <website@send.thepineapplenation.com>"
   },
-  // Secrets, set with `wrangler secret put`: RESEND_API_KEY, TURNSTILE_SECRET
+  // Secrets, set in the dashboard or with `wrangler secret put`:
+  // RESEND_API_KEY, ADMIN_PASSWORD, TURNSTILE_SECRET (optional)
   "observability": { "enabled": true }
 }

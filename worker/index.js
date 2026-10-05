@@ -1,12 +1,15 @@
 // The Pineapple Nation: static site plus contact form backend.
 //   POST /api/contact     store an enquiry in D1, then email the team
-//   GET  /admin           list enquiries (behind Cloudflare Access)
+//   GET  /admin           list enquiries, after signing in with ADMIN_PASSWORD
 //   GET  /admin/export.csv
 // Everything else is served from the static assets.
 
 const LIMITS = { name: 120, email: 254, phone: 40, service: 80, message: 5000 };
 const RATE_LIMIT = 5; // enquiries per IP per 10 minutes
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SESSION_DAYS = 7;
+const LOGIN_LIMIT = 10; // failed sign-ins per IP per 15 minutes
+const COOKIE = 'tpn_admin';
 
 export default {
   async fetch(request, env, ctx) {
@@ -129,67 +132,163 @@ function emailHtml(s) {
 
 // ---------- admin ----------
 
+// The password is the Worker secret ADMIN_PASSWORD. It also signs the session
+// cookie, so changing it signs everyone out. Without it, /admin stays closed.
 async function admin(request, env, url) {
-  const user = await verifyAccess(request, env);
-  if (!user) return new Response('Not found', { status: 404 });
+  if (!env.ADMIN_PASSWORD) return new Response('Not found', { status: 404 });
+  const path = url.pathname.replace(/\/+$/, '') || '/';
+
+  if (request.method === 'POST') {
+    const origin = request.headers.get('Origin');
+    if (origin && origin !== url.origin) return new Response('Forbidden', { status: 403 });
+    if (path === '/admin/login') return login(request, env);
+    if (path === '/admin/logout') return redirect('/admin', clearCookie());
+    return new Response('Not found', { status: 404 });
+  }
   if (request.method !== 'GET') return new Response('Method not allowed', { status: 405 });
 
-  if (url.pathname === '/admin/export.csv') {
-    const { results } = await env.DB.prepare(
-      'SELECT id, created_at, name, email, phone, service, message, country, notify_status FROM submissions ORDER BY id DESC'
-    ).all();
-    const cols = ['id', 'created_at', 'name', 'email', 'phone', 'service', 'message', 'country', 'notify_status'];
-    const csv = [cols.join(','), ...results.map(r => cols.map(c => csvCell(r[c])).join(','))].join('\r\n');
-    return new Response('﻿' + csv, {
-      headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename="tpn-enquiries-${new Date().toISOString().slice(0, 10)}.csv"`,
-        'Cache-Control': 'no-store',
-      },
-    });
-  }
-  if (url.pathname !== '/admin' && url.pathname !== '/admin/') return new Response('Not found', { status: 404 });
+  const signedIn = await validSession(request, env);
+  if (path === '/admin/export.csv') return signedIn ? exportCsv(env) : redirect('/admin');
+  if (path !== '/admin') return new Response('Not found', { status: 404 });
+  if (!signedIn) return html(loginPage(), 200);
 
   const { results } = await env.DB.prepare(
     'SELECT id, created_at, name, email, phone, service, message, notify_status FROM submissions ORDER BY id DESC LIMIT 500'
   ).all();
   const total = await env.DB.prepare('SELECT COUNT(*) AS n FROM submissions').first('n');
-  return new Response(adminPage(results, total, user.email), {
+  return html(adminPage(results, total), 200);
+}
+
+async function login(request, env) {
+  const ip = request.headers.get('CF-Connecting-IP') || '';
+  const failures = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM login_failures WHERE ip = ? AND at > strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-15 minutes')"
+  ).bind(ip).first('n');
+  if (failures >= LOGIN_LIMIT) return html(loginPage('Too many attempts. Try again in 15 minutes.'), 429);
+
+  let password = '';
+  try { password = String((await request.formData()).get('password') ?? ''); } catch {}
+  if (!(await sameSecret(password, env.ADMIN_PASSWORD))) {
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO login_failures (ip) VALUES (?)').bind(ip),
+      env.DB.prepare("DELETE FROM login_failures WHERE at < strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-1 day')"),
+    ]);
+    return html(loginPage('That password isn’t right.'), 401);
+  }
+  const exp = Math.floor(Date.now() / 1000) + SESSION_DAYS * 86400;
+  const cookie = `${COOKIE}=${exp}.${await sign(env.ADMIN_PASSWORD, `admin:${exp}`)}; Path=/admin; Max-Age=${SESSION_DAYS * 86400}; HttpOnly; Secure; SameSite=Strict`;
+  return redirect('/admin', cookie);
+}
+
+async function validSession(request, env) {
+  const value = (request.headers.get('Cookie') || '').split(/;\s*/).find(c => c.startsWith(`${COOKIE}=`))?.slice(COOKIE.length + 1);
+  const [exp, sig] = (value || '').split('.');
+  if (!exp || !sig || Number(exp) < Date.now() / 1000) return false;
+  return sameSecret(sig, await sign(env.ADMIN_PASSWORD, `admin:${exp}`));
+}
+
+async function exportCsv(env) {
+  const { results } = await env.DB.prepare(
+    'SELECT id, created_at, name, email, phone, service, message, country, notify_status FROM submissions ORDER BY id DESC'
+  ).all();
+  const cols = ['id', 'created_at', 'name', 'email', 'phone', 'service', 'message', 'country', 'notify_status'];
+  const csv = [cols.join(','), ...results.map(r => cols.map(c => csvCell(r[c])).join(','))].join('\r\n');
+  return new Response('﻿' + csv, {
+    headers: {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="tpn-enquiries-${new Date().toISOString().slice(0, 10)}.csv"`,
+      'Cache-Control': 'no-store',
+    },
+  });
+}
+
+async function sign(secret, data) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  return b64url(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data)));
+}
+
+// Compare digests so the check takes the same time whatever the input.
+async function sameSecret(a, b) {
+  const [x, y] = await Promise.all([a, b].map(v => crypto.subtle.digest('SHA-256', new TextEncoder().encode(v))));
+  return crypto.subtle.timingSafeEqual(x, y);
+}
+
+function clearCookie() {
+  return `${COOKIE}=; Path=/admin; Max-Age=0; HttpOnly; Secure; SameSite=Strict`;
+}
+
+function redirect(location, cookie) {
+  const headers = { Location: location, 'Cache-Control': 'no-store' };
+  if (cookie) headers['Set-Cookie'] = cookie;
+  return new Response(null, { status: 303, headers });
+}
+
+function html(body, status) {
+  return new Response(body, {
+    status,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'no-store',
       'X-Frame-Options': 'DENY',
       'X-Robots-Tag': 'noindex',
+      'Referrer-Policy': 'same-origin',
     },
   });
 }
 
-// Checks the token Cloudflare Access attaches to every request it lets through.
-// Without ACCESS_TEAM_DOMAIN and ACCESS_AUD configured, nobody gets in.
-async function verifyAccess(request, env) {
-  const team = (env.ACCESS_TEAM_DOMAIN || '').replace(/^https?:\/\//, '').replace(/\/+$/, '');
-  const token = request.headers.get('Cf-Access-Jwt-Assertion');
-  if (!team || !env.ACCESS_AUD || !token) return null;
-  try {
-    const [h, p, sig] = token.split('.');
-    const header = JSON.parse(b64urlText(h));
-    const payload = JSON.parse(b64urlText(p));
-    if (header.alg !== 'RS256') return null;
-    if (payload.iss !== `https://${team}`) return null;
-    if (![].concat(payload.aud).includes(env.ACCESS_AUD)) return null;
-    if (!payload.exp || payload.exp * 1000 < Date.now()) return null;
-    const certs = await (await fetch(`https://${team}/cdn-cgi/access/certs`, { cf: { cacheTtl: 3600 } })).json();
-    const jwk = certs.keys?.find(k => k.kid === header.kid);
-    if (!jwk) return null;
-    const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
-    const ok = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, b64urlBytes(sig), new TextEncoder().encode(`${h}.${p}`));
-    return ok ? payload : null;
-  } catch {
-    return null;
-  }
+function shell(title, body) {
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>${title} · The Pineapple Nation</title>
+<link rel="icon" href="/assets/submark-black.png">
+<style>
+  :root{--ink:#1a1a1a;--paper:#fbfaf7;--muted:#6b6b66;--line:#e4e1d9;--blue:#2B61B1;--red:#D53E27}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  a{color:var(--blue)}
+  .btn{display:inline-block;padding:9px 18px;border:0;border-radius:999px;background:var(--blue);color:#fff;text-decoration:none;font:inherit;font-size:.9rem;cursor:pointer}
+  .btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+  .login{min-height:100vh;display:grid;place-items:center;padding:16px}
+  .card{width:100%;max-width:360px;display:grid;gap:14px}
+  .card img{width:44px;margin-bottom:6px}
+  .card h1{font-size:1.25rem;font-weight:600;margin:0}
+  .card label{font-size:.85rem;color:var(--muted)}
+  .card input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+  .card input:focus{outline:2px solid var(--blue);outline-offset:1px;border-color:transparent}
+  .card .btn{padding:11px 18px;font-size:.95rem}
+  .error{margin:0;color:var(--red);font-size:.9rem}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:20px 16px;max-width:1200px;margin:0 auto}
+  header h1{font-size:1.25rem;font-weight:600;margin:0}
+  .meta{color:var(--muted);font-size:.9rem}
+  .actions{display:flex;gap:8px;align-items:center}
+  .actions form{margin:0}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 16px 40px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:760px}
+  th,td{text-align:left;vertical-align:top;padding:12px 10px;border-bottom:1px solid var(--line)}
+  th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+  .when{white-space:nowrap;color:var(--muted)}
+  .msg{white-space:pre-wrap;max-width:44ch}
+  .ok{color:#2f7d4f}.warn{color:var(--red)}
+  .empty{color:var(--muted);text-align:center;padding:40px}
+</style></head>
+<body>${body}</body></html>`;
 }
 
-function adminPage(rows, total, viewer) {
+function loginPage(error) {
+  return shell('Sign in', `
+<main class="login">
+  <form class="card" method="post" action="/admin/login">
+    <img src="/assets/submark-black.png" alt="">
+    <h1>Website enquiries</h1>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
+    ${error ? `<p class="error" role="alert">${esc(error)}</p>` : ''}
+    <button class="btn" type="submit">Sign in</button>
+  </form>
+</main>`);
+}
+
+function adminPage(rows, total) {
   const body = rows.length
     ? rows.map(r => `<tr>
   <td class="when">${esc(r.created_at.replace('T', ' ').slice(0, 16))}</td>
@@ -199,37 +298,18 @@ function adminPage(rows, total, viewer) {
   <td class="${r.notify_status === 'sent' ? 'ok' : 'warn'}">${esc(r.notify_status)}</td>
 </tr>`).join('')
     : '<tr><td colspan="5" class="empty">No enquiries yet.</td></tr>';
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex"><title>Enquiries · The Pineapple Nation</title>
-<style>
-  :root{--ink:#1a1a1a;--paper:#fbfaf7;--muted:#6b6b66;--line:#e4e1d9;--blue:#2B61B1;--red:#D53E27}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:20px 16px;max-width:1200px;margin:0 auto}
-  h1{font-size:1.25rem;font-weight:600;margin:0}
-  .meta{color:var(--muted);font-size:.9rem}
-  .btn{display:inline-block;padding:8px 16px;border-radius:999px;background:var(--blue);color:#fff;text-decoration:none;font-size:.9rem}
-  .wrap{max-width:1200px;margin:0 auto;padding:0 16px 40px;overflow-x:auto}
-  table{width:100%;border-collapse:collapse;min-width:760px}
-  th,td{text-align:left;vertical-align:top;padding:12px 10px;border-bottom:1px solid var(--line)}
-  th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
-  a{color:var(--blue)}
-  .when{white-space:nowrap;color:var(--muted)}
-  .msg{white-space:pre-wrap;max-width:44ch}
-  .ok{color:#2f7d4f}.warn{color:var(--red)}
-  .empty{color:var(--muted);text-align:center;padding:40px}
-</style></head>
-<body>
+  return shell('Enquiries', `
 <header>
-  <div><h1>Website enquiries</h1><div class="meta">${total} total${total > rows.length ? `, showing the latest ${rows.length}` : ''} · times in UTC · signed in as ${esc(viewer || '')}</div></div>
-  <a class="btn" href="/admin/export.csv">Download CSV</a>
+  <div><h1>Website enquiries</h1><div class="meta">${total} total${total > rows.length ? `, showing the latest ${rows.length}` : ''} · times in UTC</div></div>
+  <div class="actions">
+    <a class="btn" href="/admin/export.csv">Download CSV</a>
+    <form method="post" action="/admin/logout"><button class="btn ghost" type="submit">Sign out</button></form>
+  </div>
 </header>
 <div class="wrap"><table>
 <thead><tr><th>Received</th><th>From</th><th>Service</th><th>Message</th><th>Email alert</th></tr></thead>
 <tbody>${body}</tbody>
-</table></div>
-</body></html>`;
+</table></div>`);
 }
 
 // ---------- helpers ----------
@@ -252,11 +332,6 @@ function csvCell(v) {
   return `"${s.replace(/"/g, '""')}"`;
 }
 
-function b64urlBytes(s) {
-  const b = atob(s.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(s.length / 4) * 4, '='));
-  return Uint8Array.from(b, c => c.charCodeAt(0));
-}
-
-function b64urlText(s) {
-  return new TextDecoder().decode(b64urlBytes(s));
+function b64url(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
