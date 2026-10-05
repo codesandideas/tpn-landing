@@ -14,7 +14,7 @@
   ],
   "vars": {
     // Comma-separated list of who gets an email for every enquiry.
-    "NOTIFY_TO": "hello@ajaymugil.com",
+    "NOTIFY_TO": "sanaa@thepineapplenation.com,sabareesh@thepineapplenation.com",
     // Must be on a domain verified in Resend.
     "NOTIFY_FROM": "The Pineapple Nation website <website@send.thepineapplenation.com>",
     // Cloudflare Access protects /admin. Fill both in once the Access app exists;
