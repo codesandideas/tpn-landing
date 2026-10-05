@@ -1,7 +1,7 @@
 {
   // The site and the contact form backend, deployed together as one Worker.
   // Static pages are served from the repo root; .assetsignore keeps the rest out.
-  "name": "tpn-site",
+  "name": "tpn-landing",
   "main": "worker/index.js",
   "compatibility_date": "2025-09-01",
   "assets": {

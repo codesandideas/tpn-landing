@@ -1,6 +1,6 @@
 # Contact form backend
 
-One Cloudflare Worker (`tpn-site`) serves the static site and handles the contact form.
+One Cloudflare Worker (`tpn-landing`) serves the static site and handles the contact form.
 
 - `POST /api/contact` validates the enquiry, saves it to D1 (`tpn-forms`), then emails `NOTIFY_TO` through Resend. The visitor's address is set as reply-to.
 - `GET /admin` lists enquiries; `/admin/export.csv` downloads them. Both are closed until Cloudflare Access is set up.
